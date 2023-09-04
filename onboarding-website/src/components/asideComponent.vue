@@ -1,34 +1,27 @@
 <!-- eslint-disable vue/no-v-text-v-html-on-component -->
 <template>
-  <v-card class=" search-bar mx-auto" >
-    <v-toolbar color="primary" >
-      <v-text-field
-        v-model="data.search"
-        clearable
-        hide-details
-        label="Search Topics"
-        single-line />
-        <template v-slot:prepend>
+  <v-card class="mx-auto">
+    <v-toolbar class="search">
+      <v-text-field v-model="data.search" hide-details label="Search Topics" />
+      <template v-slot:prepend>
         <v-avatar class="me-4 mt-2" rounded="0">
-        <img src="/src/assets/magnify.svg" alt="" srcset="">
+          <img src="/src/assets/magnify.svg" alt="" srcset="" />
         </v-avatar>
-        </template>
+      </template>
     </v-toolbar>
-
-  
 
     <v-list>
       <v-list-item v-for="(item, i) in searching" :key="i" link>
         <template v-slot:prepend>
           <v-avatar class="me-4 mt-2" rounded="0">
-            <img :src="item.image" >
+            <img :src="item.image" />
           </v-avatar>
         </template>
 
         <v-list-item-title
           class="text-uppercase font-weight-regular text-caption"
           v-text="item.category"
-        ></v-list-item-title>
+          @click="filterSearch(item.category)"></v-list-item-title>
         <v-divider></v-divider>
       </v-list-item>
     </v-list>
@@ -36,38 +29,34 @@
 </template>
 
 <script setup>
-import { reactive, computed } from 'vue';
+import { reactive, computed } from 'vue'
+import { useCategoryStore } from '../stores/category'
+const categoryData = useCategoryStore()
+const emit = defineEmits(['filter'])
+
 const data = reactive({
-    items: [
-      {
-        image: '/src/assets/html.svg',
-        category: 'Html'
-      },
-      {
-        image: '/src/assets/css.svg',
-        category: 'Css'
-      },
-      {
-        image: '/src/assets/javaScript.svg',
-        category: 'Javascript'
-      },
-      {
-        image: '/src/assets/vue.svg',
-        category: 'Vue.Js'
-      }
-    ],
-    search: ''
+  items: categoryData.data.items,
+  search: ''
+})
+function filterSearch(value) {
+  emit('filter', value)
+}
+
+const searching = computed(() => {
+  if (!data.search) return data.items
+
+  const search = data.search.toLowerCase()
+
+  return data.items.filter((item) => {
+    const text = item.category.toLowerCase()
+
+    return text.indexOf(search) > -1
   })
-
- const searching = computed(() => {
-    if (!data.search) return data.items
-
-    const search = data.search.toLowerCase()
-
-    return data.items.filter((item) => {
-      const text = item.category.toLowerCase()
-
-      return text.indexOf(search) > -1
-    })
-  })
+})
 </script>
+<style scoped>
+.search {
+  background-color: #673ab5;
+  color: white;
+}
+</style>
